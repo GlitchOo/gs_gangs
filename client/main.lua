@@ -42,7 +42,7 @@ end
 if Config.ShowNearbyMembers then
     CreateThread(function()
         while true do
-            Wait(5000)
+            Wait(2000)
             if LocalPlayer.state.Gang then
                 -- Get nearby players in scopw
                 local players = GetActivePlayers()
@@ -52,7 +52,7 @@ if Config.ShowNearbyMembers then
                         local ped = GetPlayerPed(players[i]) --Get players ped                    
                         local serverId = GetPlayerServerId(players[i]) --Get players server id
                         local playerState = Player(serverId).state --Get players state
-                        if LocalPlayer.state.Gang.name == playerState.Gang?.name then
+                        if not IsPedDeadOrDying(ped, false) and LocalPlayer.state.Gang.name == playerState.Gang?.name then
                             if not MemberBlips[serverId] then --If the player is in the same gang and doesn't have a blip
                                 DevPrint('Adding Blip for', playerState.Character.NickName)
                                 MemberBlips[serverId] = BlipAddForEntity(-1749618580, ped)
