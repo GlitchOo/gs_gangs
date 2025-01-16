@@ -37,6 +37,7 @@
     "kicked": "You have been kicked from %s",
     "change_rank_subtext": "Change this members rank",
     "rank_changed": "You have changed this members rank",
+    "max_members": "This gang has reached the maximum amount of members",
     "staff_cmd_help": "Add/Remove a player from a gang",
     "staff_cmd_help2": "Get a players gang information",
     "staff_cmd_id": "Player ID",
