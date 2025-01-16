@@ -69,6 +69,22 @@ exports.gs_gangs:GetAllGangs()
 
 -- Returns a table of the specified gang.
 exports.gs_gangs:GetGangByName(name|string)
+
+-- Add menu element to gang menu (dsiplayed when gang mneu is opened)
+exports.gs_gangs:AddMenuOption(element|table)
+
+Ex:
+exports.gs_gangs:AddMenuOption({
+    { 
+        label = "name",             -- Menu element label
+        value = "value",            -- Menu element value
+        desc = "description",       -- Menu decription
+        isServer = false,           -- Is event for server? (Only used for event)
+        event = "someevent",        -- Event to be triggered on element trigger
+        action = "somefunction",    -- Function to be triggered on element trigger (Ignored if event is defined)
+        closeMenu = true            -- Close menu on element trigger
+    }
+})
 ```
 
 ## Server
