@@ -5,15 +5,15 @@ Gang status is stored in the database, the column is automatically added to vorp
 
 # Features
 
-    - Locales - Includes english but can be translated to any language
-    - Cooldowns - Adjust the cooldown required for a player to wait after leaving one gang to join another.
-    - Keybind - Enable/Disable a keybind to open the gang menu instead of a command.
-    - Member blips - Enable/Disable member blips (Display blips of nearby gang members of same gang).
-    - Commands - Change the various commands listed below and permissions
-    - Distance checks - Adjust the distance to invite new members via menu
-    - Max Members - Adjust the amount/maximum members aloowed in a single gang
-    - Gangs - Easily configure gangs, ranks, etc.
-    - Client/Server API
+- Locales - Includes english but can be translated to any language
+- Cooldowns - Adjust the cooldown required for a player to wait after leaving one gang to join another.
+- Keybind - Enable/Disable a keybind to open the gang menu instead of a command.
+- Member blips - Enable/Disable member blips (Display blips of nearby gang members of same gang).
+- Commands - Change the various commands listed below and permissions
+- Distance checks - Adjust the distance to invite new members via menu
+- Max Members - Adjust the amount/maximum members aloowed in a single gang
+- Gangs - Easily configure gangs, ranks, etc.
+- Client/Server API
 
 
 [Example Video](https://youtu.be/UEe1d2MUIU8)
@@ -30,9 +30,9 @@ Gang status is stored in the database, the column is automatically added to vorp
     - Invite members
     - Manage members
         - Kick members
-        - Chnage members rank
+        - Change members rank
 
-/mygang - Dispalys the players gang and rank
+/mygang - Display the players gang and rank
 
 The following command is for permitted access (Changed in the config [AcePerms | Group])
 /setgang [PlayerId] [GangName] [GangRank]
