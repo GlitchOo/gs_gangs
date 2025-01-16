@@ -56,6 +56,14 @@ RegisterNetEvent('gs_gangs:server:recruitResponse', function(bool, player)
     if not gangName then return end
 
     if bool then
+        PendingInvites[src] = nil
+
+        local total = MySQL.scalar.await('SELECT COUNT(*) FROM characters WHERE JSON_EXTRACT(`gang`, \'$.name\') = ?', {gangName})
+
+        if tonumber(total) >= Config.MaxMembers then
+            return Core.NotifyAvanced(src, _('max_members'), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
+        end
+
         MySQL.update('UPDATE characters SET gang = ? WHERE charidentifier = ?', {
             json.encode({name = gangName, rank = 1, lastupdate = os.time()}),
             Character.charIdentifier
@@ -115,6 +123,12 @@ RegisterNetEvent("gs_gangs:server:recruit", function(target)
 
     if not Config.Gangs[InvitingGang.name].ranks[InvitingGang.rank].permissionMenu then
         return Core.NotifyAvanced(src, _('no_permission'), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
+    end
+
+    local total = MySQL.scalar.await('SELECT COUNT(*) FROM characters WHERE JSON_EXTRACT(`gang`, \'$.name\') = ?', {InvitingGang.name})
+
+    if tonumber(total) >= Config.MaxMembers then
+        return Core.NotifyAvanced(src, _('max_members'), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
     end
 
     local GangData = MySQL.scalar.await('SELECT gang FROM characters WHERE charidentifier = ?', {target.state.charIdentifier})
@@ -302,6 +316,12 @@ RegisterCommand(Config.Commands.staff.set, function(source, args)
 
         if not Config.Gangs[gang].ranks[rank] then
             return Core.NotifyAvanced(src, _('invalid_rank'), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
+        end
+
+        local total = MySQL.scalar.await('SELECT COUNT(*) FROM characters WHERE JSON_EXTRACT(`gang`, \'$.name\') = ?', {gang})
+
+        if tonumber(total) >= Config.MaxMembers then
+            return Core.NotifyAvanced(src, _('max_members'), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
         end
 
         MySQL.update('UPDATE characters SET gang = ? WHERE charidentifier = ?', {
