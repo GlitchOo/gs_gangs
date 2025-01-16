@@ -301,7 +301,10 @@ AddStateBagChangeHandler("Gang", "", function(bagName, key, value, source, repli
 
         if source ~= 0 then
             DevPrint('Client attempted to change statebag for player', owner)
-            state.Gang = curr
+            -- Reset the statebag
+            SetTimeout(0, function()
+                state.Gang = curr
+            end)
         end
     end
 end)
