@@ -289,6 +289,23 @@ AddEventHandler('playerDropped', function()
     PendingInvites[source] = nil
 end)
 
+--- Block any client side statebag replication
+--- Im not sure this is needed but its possible to change client side statebags
+AddStateBagChangeHandler("Gang", "", function(bagName, key, value, source, replicated)
+    if not replicated then return end
+
+    if not bagName:find("entity") then
+        local owner = GetPlayerFromStateBagName(bagName)
+        local state = Player(owner).state
+        local curr = state.Gang
+
+        if source ~= 0 then
+            DevPrint('Client attempted to change statebag for player', owner)
+            state.Gang = curr
+        end
+    end
+end)
+
 RegisterCommand(Config.Commands.staff.set, function(source, args)
     local src = source
     local User <const> = Core.getUser(src)
