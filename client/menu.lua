@@ -218,14 +218,12 @@ function OpenMenu()
 
         if data.current.event then
             if data.current.isServer then
-                TriggerServerEvent(data.current.event)
+                TriggerServerEvent(data.current.event, data.current)
             else
-                TriggerEvent(data.current.event)
+                TriggerEvent(data.current.event, data.current)
             end
-        end
-
-        if data.action then
-            _G[data.action](data.current.value)
+        elseif data.current.action then
+            _G[data.action](data.current)
         end
 
     end, function(data, menu)
