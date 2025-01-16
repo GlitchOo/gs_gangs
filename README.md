@@ -11,7 +11,7 @@ Gang status is stored in the database, the column is automatically added to vorp
 - Member blips - Enable/Disable member blips (Display blips of nearby gang members of same gang).
 - Commands - Change the various commands listed below and permissions
 - Distance checks - Adjust the distance to invite new members via menu
-- Max Members - Adjust the amount/maximum members aloowed in a single gang
+- Max Members - Adjust the amount/maximum members allowed in a single gang
 - Gangs - Easily configure gangs, ranks, etc.
 - Client/Server API
 
