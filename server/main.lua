@@ -88,6 +88,11 @@ RegisterNetEvent("gs_gangs:server:recruit", function(target)
     DevPrint(source, 'gs_gangs:server:recruit', target)
     local src = source
 
+    local User <const> = Core.getUser(src)
+    if not User then return end
+    local Character <const> = User.getUsedCharacter
+    if not Character then return end
+
     local targetUser <const> = Core.getUser(target)
     if not targetUser then
         return Core.NotifyAvanced(src, _('player_not_online'), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
@@ -103,11 +108,11 @@ RegisterNetEvent("gs_gangs:server:recruit", function(target)
         return Core.NotifyAvanced(src, _('player_too_far'), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
     end
 
-    local player = Player(src).state
     local targetPlayer = Player(target).state
-
-    local InvitingGang = player.Gang
     local InvitedGang = targetPlayer.Gang
+
+    local PlayerGang = MySQL.scalar.await('SELECT gang FROM characters WHERE charidentifier = ?', {Character.charIdentifier})
+    local InvitingGang = json.decode(PlayerGang)
 
     if not InvitingGang or not Config.Gangs[InvitingGang.name] then
         return
@@ -155,13 +160,14 @@ RegisterNetEvent('gs_gangs:server:changeRank', function(charidentifier, rank)
     local Character <const> = User.getUsedCharacter
     if not Character then return end
 
-    local player = Player(src).state 
+    local PlayerGang = MySQL.scalar.await('SELECT gang FROM characters WHERE charidentifier = ?', {Character.charIdentifier})
+    PlayerGang = json.decode(PlayerGang)
 
-    if not player.Gang or not Config.Gangs[player.Gang.name] then
+    if not PlayerGang or not Config.Gangs[PlayerGang.name] then
         return
     end
 
-    if not Config.Gangs[player.Gang.name].ranks[player.Gang.rank].permissionMenu then
+    if not Config.Gangs[PlayerGang.name].ranks[PlayerGang.rank].permissionMenu then
         return Core.NotifyAvanced(src, _('no_permission'), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
     end
 
@@ -172,19 +178,19 @@ RegisterNetEvent('gs_gangs:server:changeRank', function(charidentifier, rank)
         return
     end
 
-    if player.Gang.rank < rank or player.Gang.rank <= currGang.rank then
+    if PlayerGang.rank < rank or PlayerGang.rank <= currGang.rank then
         return Core.NotifyAvanced(src, _('no_permission'), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
     end
 
     MySQL.update('UPDATE characters SET gang = ? WHERE charidentifier = ?', {
-        json.encode({name = player.Gang.name, rank = rank, lastupdate = os.time()}), 
+        json.encode({name = PlayerGang.name, rank = rank, lastupdate = os.time()}), 
         charidentifier
     }, function()
         local targetUser <const> = Core.getUserByCharId(charidentifier)
         
         if targetUser then
             Player(targetUser.source).state:set('Gang', {
-                name = player.Gang.name,
+                name = PlayerGang.name,
                 rank = rank
             }, true)
         end
@@ -204,17 +210,18 @@ RegisterNetEvent('gs_gangs:server:kickMember', function(charidentifier)
     local Character <const> = User.getUsedCharacter
     if not Character then return end
 
-    local player = Player(src).state
+    local PlayerGang = MySQL.scalar.await('SELECT gang FROM characters WHERE charidentifier = ?', {Character.charIdentifier})
+    PlayerGang = json.decode(PlayerGang)
 
     if Character.charIdentifier == charidentifier then
         return Core.NotifyAvanced(src, _('cant_kick_self'), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
     end
 
-    if not player.Gang or not Config.Gangs[player.Gang.name] then
+    if not PlayerGang or not Config.Gangs[PlayerGang.name] then
         return
     end
 
-    if not Config.Gangs[player.Gang.name].ranks[player.Gang.rank].permissionMenu then
+    if not Config.Gangs[PlayerGang.name].ranks[PlayerGang.rank].permissionMenu then
         return Core.NotifyAvanced(src, _('no_permission'), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
     end
 
@@ -226,7 +233,7 @@ RegisterNetEvent('gs_gangs:server:kickMember', function(charidentifier)
 
         if targetUser then
             Player(targetUser.source).state.Gang = nil
-            Core.NotifyAvanced(targetUser.source, _('kicked', Config.Gangs[player.Gang.name].label), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
+            Core.NotifyAvanced(targetUser.source, _('kicked', Config.Gangs[PlayerGang.name].label), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
         end
 
         Core.NotifyAvanced(src, _('kicked_member'), "BLIPS", "blip_mission_camp", "COLOR_GREEN", 1500)
@@ -240,14 +247,19 @@ end)
 RegisterNetEvent('gs_gangs:server:getMembers', function()
     DevPrint(source, 'gs_gangs:server:getMembers')
     local src = source
-    local player = Player(src).state
-    local gang = player.Gang
+    local User <const> = Core.getUser(src)
+    if not User then return end
+    local Character <const> = User.getUsedCharacter
+    if not Character then return end
 
-    if not gang or not Config.Gangs[gang.name] then
+    local PlayerGang = MySQL.scalar.await('SELECT gang FROM characters WHERE charidentifier = ?', {Character.charIdentifier})
+    PlayerGang = json.decode(PlayerGang)
+
+    if not PlayerGang or not Config.Gangs[PlayerGang.name] then
         return
     end
 
-    MySQL.query('SELECT charidentifier, firstname, lastname, gang FROM characters WHERE JSON_EXTRACT(`gang`, \'$.name\') = ?', {gang.name}, function(result)
+    MySQL.query('SELECT charidentifier, firstname, lastname, gang FROM characters WHERE JSON_EXTRACT(`gang`, \'$.name\') = ?', {PlayerGang.name}, function(result)
         TriggerClientEvent('gs_gangs:client:members', src, result)
     end)
 end)
