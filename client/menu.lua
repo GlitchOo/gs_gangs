@@ -226,6 +226,10 @@ function OpenMenu()
             _G[data.action](data.current)
         end
 
+        if data.current.closeMenu then
+            menu.close()
+        end
+
     end, function(data, menu)
         menu.close()
     end)
