@@ -78,7 +78,7 @@ exports.gs_gangs:AddMenuOption({
     { 
         label = "name",             -- Menu element label
         value = "value",            -- Menu element value
-        desc = "description",       -- Menu decription
+        desc = "description",       -- Menu description
         isServer = false,           -- Is event for server? (Only used for event)
         event = "someevent",        -- Event to be triggered on element trigger
         action = "somefunction",    -- Function to be triggered on element trigger (Ignored if event is defined)
