@@ -32,6 +32,7 @@ A simple gang management system for VORP/RedM. Gang status is stored in the data
 /mygang - Display the player's gang and rank.
 
 The following command is for permitted access (Changed in the config [AcePerms | Group]):
+
 /setgang [PlayerId] [GangName] [GangRank]
 
 Example:
