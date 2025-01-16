@@ -70,7 +70,7 @@ exports.gs_gangs:GetAllGangs()
 -- Returns a table of the specified gang.
 exports.gs_gangs:GetGangByName(name|string)
 
--- Add menu element to gang menu (dsiplayed when gang mneu is opened)
+-- Add menu element to gang menu (displayed when gang mneu is opened)
 exports.gs_gangs:AddMenuOption(element|table)
 
 Ex:
