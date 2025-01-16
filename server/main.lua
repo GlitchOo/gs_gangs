@@ -239,7 +239,7 @@ RegisterNetEvent('gs_gangs:server:getMembers', function()
 end)
 
 --- Event triggered when player selects their character
-AddEventHandler("NBRD:SelectedCharacter", PlayerLoaded)
+AddEventHandler("vorp:SelectedCharacter", PlayerLoaded)
 
 AddEventHandler('onResourceStart', function(resource)
     if resource == U.Cache.Resource then
