@@ -7,7 +7,12 @@ local GangAPI = {}
 function GangAPI.GetPlayerGang()
     local gang = LocalPlayer.state.Gang?.name
     if gang then
-        return Config.Gangs[gang]
+        return {
+            name = gang,
+            color = Config.Gangs[gang].color,
+            label = Config.Gangs[gang].label,
+            ranks = Config.Gangs[gang].ranks
+        }
     end
     return false
 end
