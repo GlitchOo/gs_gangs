@@ -294,3 +294,7 @@ end)
 AddEventHandler('onResourceStop', function(resource)
     ExternalMenus[resource] = nil
 end)
+
+--- Opens the gane menu
+--- @usage exports.gs_gangs:OpenMenu()
+exports('OpenMenu', OpenMenu)
