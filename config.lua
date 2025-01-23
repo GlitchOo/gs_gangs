@@ -29,6 +29,7 @@ Config = {
     Gangs = {
         ['DelLobo'] = {
             label = 'Del Lobo',                         -- Gang Name
+            color = 'BLIP_MODIFIER_MP_COLOR_1',         -- Gang Color
             ranks = {
                 [1] = {
                     label = 'Trail Scout',              -- Rank Name
@@ -55,6 +56,7 @@ Config = {
 
         ['Laramie'] = {
             label = 'Laramie',                         -- Gang Name
+            color = 'BLIP_MODIFIER_MP_COLOR_2',         -- Gang Color
             ranks = {
                 [1] = {
                     label = 'Trail Scout',              -- Rank Name
@@ -81,6 +83,7 @@ Config = {
 
         ['Murfree'] = {
             label = 'Murfree',                          -- Gang Name
+            color = 'BLIP_MODIFIER_MP_COLOR_3',         -- Gang Color
             ranks = {
                 [1] = {
                     label = 'Trail Scout',              -- Rank Name
@@ -107,6 +110,7 @@ Config = {
 
         ['Odriscoll'] = {
             label = 'Odriscoll',                       -- Gang Name
+            color = 'BLIP_MODIFIER_MP_COLOR_4',        -- Gang Color
             ranks = {
                 [1] = {
                     label = 'Trail',
@@ -133,6 +137,7 @@ Config = {
 
         ['Skinner'] = {
             label = 'Skinner',                          -- Gang Name
+            color = 'BLIP_MODIFIER_MP_COLOR_5',         -- Gang Color
             ranks = {
                 [1] = {
                     label = 'Trail Scout',              -- Rank Name
