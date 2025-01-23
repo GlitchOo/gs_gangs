@@ -30,7 +30,7 @@ function ChangeRank(members, member)
     {
         title = _('member_title', member.firstname, member.lastname),
         subtext = _('change_rank_subtext'),
-        align = "top-left",
+        align = "top",
         elements = MenuElements,
         lastmenu = "ViewMember",
         itemHeight = "2vh",
@@ -86,7 +86,7 @@ function ViewMember(members, member)
     {
         title = _('member_title', member.firstname, member.lastname),
         subtext = _('member_subtext', Config.Gangs[member.gang.name].ranks[member.gang.rank]?.label or 'Unknown Rank'),
-        align = "top-left",
+        align = "top",
         elements = MenuElements,
         lastmenu = "MembersMenu",
         itemHeight = "2vh",
@@ -132,7 +132,7 @@ function MembersMenu(members)
     {
         title = _('members'),
         subtext = _('members_subtext', #members, Config.MaxMembers),
-        align = "top-left",
+        align = "top",
         elements = MenuElements,
         lastmenu = "OpenMenu",
         itemHeight = "2vh",
@@ -186,7 +186,7 @@ function OpenMenu()
 
     {
         title = Config.Gangs[LocalPlayer.state.Gang.name].label,
-        align = "top-left",
+        align = "top",
         elements = MenuElements,
         itemHeight = "2vh",
     },
@@ -261,7 +261,7 @@ RegisterNetEvent('gs_gangs:client:recruit', function(gangName, player)
     {
         title = _('invite_title', Config.Gangs[gangName].label),
         subtext = _('invite_subtext', Config.Gangs[gangName].label),
-        align = "top-left",
+        align = "top",
         elements = MenuElements,
         itemHeight = "2vh",
     },
