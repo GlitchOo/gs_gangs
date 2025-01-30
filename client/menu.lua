@@ -211,7 +211,7 @@ function OpenMenu()
 
             local result = exports.vorp_inputs:advancedInput(input)
             local target = tonumber(result)
-            if result then
+            if target then
                 TriggerServerEvent('gs_gangs:server:recruit', target)
             end
         end

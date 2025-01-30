@@ -122,7 +122,7 @@ RegisterNetEvent("gs_gangs:server:recruit", function(target)
         return Core.NotifyAvanced(src, _('existing_gang'), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
     end
 
-    if InvitingGang.name == InvitedGang.name then
+    if InvitedGang and InvitingGang.name == InvitedGang.name then
         return Core.NotifyAvanced(src, _('same_gang'), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
     end
 
