@@ -52,5 +52,6 @@
     "staff_cmd_target": "You have been added to %s",
     "staff_cmd_no_gang": "This player is not in any gang",
     "staff_cmd_kick_success": "You have removed %s from %s",
-    "staff_cmd_kick_target": "You have been removed from %s"
+    "staff_cmd_kick_target": "You have been removed from %s",
+    "invite_success": "You have invited this player to your gang"
 }
