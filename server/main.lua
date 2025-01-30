@@ -136,7 +136,7 @@ RegisterNetEvent("gs_gangs:server:recruit", function(target)
         return Core.NotifyAvanced(src, _('max_members'), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
     end
 
-    local GangData = MySQL.scalar.await('SELECT gang FROM characters WHERE charidentifier = ?', {target.state.charIdentifier})
+    local GangData = MySQL.scalar.await('SELECT gang FROM characters WHERE charidentifier = ?', {targetPlayer.charIdentifier})
     GangData = json.decode(GangData)
 
     if GangData?.lastupdate and (os.time() - GangData.lastupdate) < Config.Cooldown then
@@ -145,7 +145,7 @@ RegisterNetEvent("gs_gangs:server:recruit", function(target)
 
     PendingInvites[target] = InvitingGang.name
 
-    TriggerClientEvent("gs_gangs:client:recruit", target, InvitingGang.name)
+    TriggerClientEvent("gs_gangs:client:recruit", target, InvitingGang.name, src)
     Core.NotifyAvanced(src, _('invite_success'), "BLIPS", "blip_mission_camp", "COLOR_GREEN", 1500)
 end)
 
