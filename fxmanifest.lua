@@ -25,3 +25,9 @@ server_scripts {
 files {
   'locales/*.json'
 }
+
+dependencies {
+  'vorp_core',
+  'vorp_menu',
+  'oxmysql',
+}

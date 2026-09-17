@@ -16,10 +16,11 @@ A simple gang management system for VORP/RedM. Gang status is stored in the data
 
 [Example Video](https://youtu.be/UEe1d2MUIU8)
 
-![Preview 1](https://i.gyazo.com/4c719841464957d8b5614891379b120a.png)
-![Preview 2](https://i.gyazo.com/90e974b5051257e20f7c88af8368acab.png)
-![Preview 3](https://i.gyazo.com/6eab8946aedae5ab0a69441e70bfb418.png)
-![Preview 4](https://i.gyazo.com/7501c1acab065728f31eee9cc831ac69.png)
+![Preview 1](https://static.glitchd.app/redm/gangs/gang_menu_1.png)
+![Preview 2](https://static.glitchd.app/redm/gangs/gang_menu_2.png)
+![Preview 3](https://static.glitchd.app/redm/gangs/gang_menu_3.png)
+![Preview 4](https://static.glitchd.app/redm/gangs/gang_menu_4.png)
+![Preview 5](https://static.glitchd.app/redm/gangs/gang_menu_5.png)
 
 # Commands
 
@@ -117,4 +118,4 @@ While this resource was built around VORP, it could be modified for any framewor
 
 [Vorp Menu](https://github.com/VORPCORE/vorp_menu)
 
-[Vorp Inputs](https://github.com/VORPCORE/vorp_inputs-lua)
+[oxmysql](https://github.com/overextended/oxmysql)

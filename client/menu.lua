@@ -57,28 +57,15 @@ function ViewMember(members, member)
     Menu.CloseAll()
 
     local MenuElements = {
-        { 
-            label = _('change_rank'), 
+        {
+            label = _('change_rank'),
             value = 'member_ranks',
             desc = _('member_ranks_desc')
         },
-        { 
-            label = _('kick_member'), 
+        {
+            label = _('kick_member'),
             value = 'kick_member',
             desc = _('kick_member_desc'),
-            confirm = {
-                type = "enableinput",
-                inputType = "input",
-                button = _('confirm'),
-                placeholder = "",
-                style = "block",
-                attributes = {
-                    type = "text",
-                    inputHeader  = _('kick_confirm', _('kick')),
-                    pattern = ".*",
-                    style = "border-radius: 10px; background-color: ; border:none;"
-                }
-            }
         },
     }
 
@@ -100,10 +87,16 @@ function ViewMember(members, member)
         if data.current.value == 'member_ranks' then
             ChangeRank(members, member)
         elseif data.current.value == 'kick_member' then
-            local result = exports.vorp_inputs:advancedInput(data.current.confirm)
-            if result == _('kick') then
-                TriggerServerEvent('gs_gangs:server:kickMember', member.charidentifier)
-            end
+            menu.displayInput({
+                inputType = 'yesno',
+                header = _('kick_member'),
+                description = _('kick_confirm'),
+                buttons = { confirm = _('confirm'), cancel = _('cancel') },
+            }, function(confirmed)
+                if confirmed then
+                    TriggerServerEvent('gs_gangs:server:kickMember', member.charidentifier)
+                end
+            end)
         end
     end, function(data, menu)
         menu.close()
@@ -144,6 +137,84 @@ function MembersMenu(members)
         end
         
         ViewMember(members, data.current.value)
+    end, function(data, menu)
+        menu.close()
+    end)
+end
+
+---Builds a label for a nearby player from their character statebag.
+---@param serverId number
+---@return string
+local function NearbyPlayerLabel(serverId)
+    local character = Player(serverId).state.Character
+    if character?.FirstName and character?.LastName then
+        return ('%s %s'):format(character.FirstName, character.LastName)
+    end
+    if character?.NickName and character.NickName ~= '' then
+        return character.NickName
+    end
+    return _('player_id', serverId)
+end
+
+--- Invite menu listing nearby players within MaxInviteDistance
+function InviteMenu()
+    DevPrint('InviteMenu')
+    Menu.CloseAll()
+
+    local myCoords = GetEntityCoords(PlayerPedId())
+    local maxDist = Config.MaxInviteDistance
+    local MenuElements = {}
+    local players = GetActivePlayers()
+
+    for i = 1, #players do
+        local player = players[i]
+        if player ~= U.Cache.PlayerId then
+            local ped = GetPlayerPed(player)
+            if ped ~= 0 and DoesEntityExist(ped) then
+                local dist = #(myCoords - GetEntityCoords(ped))
+                if dist <= maxDist then
+                    local serverId = GetPlayerServerId(player)
+                    local gang = Player(serverId).state.Gang
+                    local name = NearbyPlayerLabel(serverId)
+                    table.insert(MenuElements, {
+                        label = name,
+                        value = serverId,
+                        desc = gang and _('invite_already_in_gang', name) or _('invite_player_desc', name, math.floor(dist + 0.5)),
+                        isDisabled = gang ~= nil,
+                    })
+                end
+            end
+        end
+    end
+
+    if #MenuElements == 0 then
+        table.insert(MenuElements, {
+            label = _('invite_none_nearby'),
+            value = false,
+            desc = _('invite_none_nearby_desc', maxDist),
+            isNotSelectable = true,
+        })
+    end
+
+    Menu.Open("default", U.Cache.Resource, "invite",
+    {
+        title = _('invite'),
+        subtext = _('invite_nearby_subtext', maxDist),
+        align = "top",
+        elements = MenuElements,
+        lastmenu = "OpenMenu",
+        itemHeight = "2vh",
+    },
+
+    function(data, menu)
+        if (data.current == "backup") then
+            return _G[data.trigger]()
+        end
+
+        if data.current.value then
+            TriggerServerEvent('gs_gangs:server:recruit', data.current.value)
+            menu.close()
+        end
     end, function(data, menu)
         menu.close()
     end)
@@ -195,25 +266,7 @@ function OpenMenu()
         if data.current.value == 'members' then
             TriggerServerEvent('gs_gangs:server:getMembers')
         elseif data.current.value == 'invite' then
-            local input = {
-                type = "enableinput",
-                inputType = "input",
-                placeholder = "0",
-                button = _('confirm'),
-                style = "block",
-                attributes = {
-                    type = "number",
-                    inputHeader = _('invite_input'),
-                    pattern = "[0-9]",
-                    style = "border-radius: 10px; background-color: ; border:none;"
-                }
-            }
-
-            local result = exports.vorp_inputs:advancedInput(input)
-            local target = tonumber(result)
-            if target then
-                TriggerServerEvent('gs_gangs:server:recruit', target)
-            end
+            InviteMenu()
         end
 
         if data.current.event then

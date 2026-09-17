@@ -1,7 +1,20 @@
 local Core = exports.vorp_core:GetCore()
 local PendingInvites = {}
 
+---Returns the active character for a source, or nil if none selected.
+---@param source number
+---@return table|nil
+local function GetCharacter(source)
+    local User = Core.getUser(source)
+    if not User then return nil end
+    local Character = User.getUsedCharacter
+    if not Character?.charIdentifier then return nil end
+    return Character
+end
+
 local function PlayerLoaded(source, character)
+    if not character?.charIdentifier then return end
+
     local data = MySQL.scalar.await('SELECT gang FROM characters WHERE charidentifier = ?', {character.charIdentifier})
     local gang = json.decode(data)
 
@@ -13,7 +26,7 @@ local function PlayerLoaded(source, character)
                 rank = gang.rank
             }, true)
         else
-            Player(source).state.Gang = nil
+            Player(source).state:set('Gang', nil, true)
             gang.name = false
             gang.rank = 0
             gang.lastupdate = os.time()
@@ -46,18 +59,16 @@ end
 RegisterNetEvent('gs_gangs:server:recruitResponse', function(bool, player)
     DevPrint(source, 'gs_gangs:server:recruitResponse', bool, player)
     local src = source
-    local User <const> = Core.getUser(src)
-    if not User then return end
-    local Character <const> = User.getUsedCharacter
+    local Character <const> = GetCharacter(src)
     if not Character then return end
 
     local gangName = PendingInvites[src]
 
     if not gangName then return end
 
-    if bool then
-        PendingInvites[src] = nil
+    PendingInvites[src] = nil
 
+    if bool then
         local total = MySQL.scalar.await('SELECT COUNT(*) FROM characters WHERE JSON_EXTRACT(`gang`, \'$.name\') = ?', {gangName})
 
         if tonumber(total) >= Config.MaxMembers then
@@ -88,13 +99,16 @@ RegisterNetEvent("gs_gangs:server:recruit", function(target)
     DevPrint(source, 'gs_gangs:server:recruit', target)
     local src = source
 
-    local User <const> = Core.getUser(src)
-    if not User then return end
-    local Character <const> = User.getUsedCharacter
+    local Character <const> = GetCharacter(src)
     if not Character then return end
 
     local targetUser <const> = Core.getUser(target)
     if not targetUser then
+        return Core.NotifyAvanced(src, _('player_not_online'), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
+    end
+
+    local targetCharacter <const> = targetUser.getUsedCharacter
+    if not targetCharacter?.charIdentifier then
         return Core.NotifyAvanced(src, _('player_not_online'), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
     end
 
@@ -108,8 +122,7 @@ RegisterNetEvent("gs_gangs:server:recruit", function(target)
         return Core.NotifyAvanced(src, _('player_too_far'), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
     end
 
-    local targetPlayer = Player(target).state
-    local InvitedGang = targetPlayer.Gang
+    local InvitedGang = Player(target).state.Gang
 
     local PlayerGang = MySQL.scalar.await('SELECT gang FROM characters WHERE charidentifier = ?', {Character.charIdentifier})
     local InvitingGang = json.decode(PlayerGang)
@@ -136,7 +149,7 @@ RegisterNetEvent("gs_gangs:server:recruit", function(target)
         return Core.NotifyAvanced(src, _('max_members'), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
     end
 
-    local GangData = MySQL.scalar.await('SELECT gang FROM characters WHERE charidentifier = ?', {targetPlayer.charIdentifier})
+    local GangData = MySQL.scalar.await('SELECT gang FROM characters WHERE charidentifier = ?', {targetCharacter.charIdentifier})
     GangData = json.decode(GangData)
 
     if GangData?.lastupdate and (os.time() - GangData.lastupdate) < Config.Cooldown then
@@ -150,15 +163,16 @@ RegisterNetEvent("gs_gangs:server:recruit", function(target)
 end)
 
 --- Event triggered to change a members rank
---- @param charidentifier string
+--- @param charidentifier string|number
 --- @param rank number
 RegisterNetEvent('gs_gangs:server:changeRank', function(charidentifier, rank)
     DevPrint(source, 'gs_gangs:server:changeRank', charidentifier, rank)
     local src = source
-    local User <const> = Core.getUser(src)
-    if not User then return end
-    local Character <const> = User.getUsedCharacter
+    local Character <const> = GetCharacter(src)
     if not Character then return end
+
+    local charId = tonumber(charidentifier)
+    if not charId then return end
 
     local PlayerGang = MySQL.scalar.await('SELECT gang FROM characters WHERE charidentifier = ?', {Character.charIdentifier})
     PlayerGang = json.decode(PlayerGang)
@@ -171,7 +185,7 @@ RegisterNetEvent('gs_gangs:server:changeRank', function(charidentifier, rank)
         return Core.NotifyAvanced(src, _('no_permission'), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
     end
 
-    local currGang = MySQL.scalar.await('SELECT `gang` FROM characters WHERE charidentifier = ?', {charidentifier})
+    local currGang = MySQL.scalar.await('SELECT `gang` FROM characters WHERE charidentifier = ?', {charId})
     currGang = json.decode(currGang)
 
     if not currGang then
@@ -183,11 +197,11 @@ RegisterNetEvent('gs_gangs:server:changeRank', function(charidentifier, rank)
     end
 
     MySQL.update('UPDATE characters SET gang = ? WHERE charidentifier = ?', {
-        json.encode({name = PlayerGang.name, rank = rank, lastupdate = os.time()}), 
-        charidentifier
+        json.encode({name = PlayerGang.name, rank = rank, lastupdate = os.time()}),
+        charId
     }, function()
-        local targetUser <const> = Core.getUserByCharId(charidentifier)
-        
+        local targetUser <const> = Core.getUserByCharId(charId)
+
         if targetUser then
             Player(targetUser.source).state:set('Gang', {
                 name = PlayerGang.name,
@@ -201,19 +215,20 @@ RegisterNetEvent('gs_gangs:server:changeRank', function(charidentifier, rank)
 end)
 
 --- Event triggered to kick a member
---- @param charidentifier string
+--- @param charidentifier string|number
 RegisterNetEvent('gs_gangs:server:kickMember', function(charidentifier)
     DevPrint(source, 'gs_gangs:server:kickMember', charidentifier)
     local src = source
-    local User <const> = Core.getUser(src)
-    if not User then return end
-    local Character <const> = User.getUsedCharacter
+    local Character <const> = GetCharacter(src)
     if not Character then return end
+
+    local charId = tonumber(charidentifier)
+    if not charId then return end
 
     local PlayerGang = MySQL.scalar.await('SELECT gang FROM characters WHERE charidentifier = ?', {Character.charIdentifier})
     PlayerGang = json.decode(PlayerGang)
 
-    if Character.charIdentifier == charidentifier then
+    if tonumber(Character.charIdentifier) == charId then
         return Core.NotifyAvanced(src, _('cant_kick_self'), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
     end
 
@@ -226,19 +241,19 @@ RegisterNetEvent('gs_gangs:server:kickMember', function(charidentifier)
     end
 
     MySQL.update('UPDATE characters SET gang = ? WHERE charidentifier = ?', {
-        json.encode({name = false, rank = 0, lastupdate = os.time()}), 
-        charidentifier
+        json.encode({name = false, rank = 0, lastupdate = os.time()}),
+        charId
     }, function()
-        local targetUser <const> = Core.getUserByCharId(charidentifier)
+        local targetUser <const> = Core.getUserByCharId(charId)
 
         if targetUser then
-            Player(targetUser.source).state.Gang = nil
+            Player(targetUser.source).state:set('Gang', nil, true)
             Core.NotifyAvanced(targetUser.source, _('kicked', Config.Gangs[PlayerGang.name].label), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
         end
 
         Core.NotifyAvanced(src, _('kicked_member'), "BLIPS", "blip_mission_camp", "COLOR_GREEN", 1500)
-        local members = MySQL.query.await('SELECT charidentifier, firstname, lastname, gang FROM characters WHERE JSON_EXTRACT(`gang`, \'$.name\') = ?', {player.Gang.name})
-        
+        local members = MySQL.query.await('SELECT charidentifier, firstname, lastname, gang FROM characters WHERE JSON_EXTRACT(`gang`, \'$.name\') = ?', {PlayerGang.name})
+
         TriggerClientEvent('gs_gangs:client:members', src, members)
     end)
 end)
@@ -247,9 +262,7 @@ end)
 RegisterNetEvent('gs_gangs:server:getMembers', function()
     DevPrint(source, 'gs_gangs:server:getMembers')
     local src = source
-    local User <const> = Core.getUser(src)
-    if not User then return end
-    local Character <const> = User.getUsedCharacter
+    local Character <const> = GetCharacter(src)
     if not Character then return end
 
     local PlayerGang = MySQL.scalar.await('SELECT gang FROM characters WHERE charidentifier = ?', {Character.charIdentifier})
@@ -273,11 +286,13 @@ AddEventHandler('onResourceStart', function(resource)
 
         local Users <const> = Core.getUsers()
 
-        for k, v in pairs(Users) do
-            local User <const> = v.GetUser()
-            local Character <const> = User.getUsedCharacter
-            if Character then
-                PlayerLoaded(User.source, Character)
+        for _, v in pairs(Users) do
+            if v.usedCharacterId ~= -1 then
+                local User <const> = v.GetUser()
+                local Character <const> = User.getUsedCharacter
+                if Character?.charIdentifier then
+                    PlayerLoaded(User.source, Character)
+                end
             end
         end
     end
@@ -303,7 +318,7 @@ AddStateBagChangeHandler("Gang", "", function(bagName, key, value, source, repli
             DevPrint('Client attempted to change statebag for player', owner)
             -- Reset the statebag
             SetTimeout(0, function()
-                state.Gang = curr
+                state:set('Gang', curr, true)
             end)
         end
     end
@@ -311,9 +326,7 @@ end)
 
 RegisterCommand(Config.Commands.staff.set, function(source, args)
     local src = source
-    local User <const> = Core.getUser(src)
-    if not User then return end
-    local Character <const> = User.getUsedCharacter
+    local Character <const> = GetCharacter(src)
     if not Character then return end
 
     local hasGroup = Character.group == Config.Commands.staff.group
@@ -337,7 +350,7 @@ RegisterCommand(Config.Commands.staff.set, function(source, args)
     end
 
     local targetCharacter <const> = targetUser.getUsedCharacter
-    if not targetCharacter then
+    if not targetCharacter?.charIdentifier then
         return Core.NotifyAvanced(src, _('player_not_online'), "BLIPS", "blip_mission_camp", "COLOR_RED", 1500)
     end
 
@@ -357,7 +370,7 @@ RegisterCommand(Config.Commands.staff.set, function(source, args)
         end
 
         MySQL.update('UPDATE characters SET gang = ? WHERE charidentifier = ?', {
-            json.encode({name = gang, rank = rank, lastupdate = os.time()}), 
+            json.encode({name = gang, rank = rank, lastupdate = os.time()}),
             targetCharacter.charIdentifier
         }, function()
             Player(target).state:set('Gang', {
@@ -376,10 +389,10 @@ RegisterCommand(Config.Commands.staff.set, function(source, args)
         end
 
         MySQL.update('UPDATE characters SET gang = ? WHERE charidentifier = ?', {
-            json.encode({name = false, rank = 0, lastupdate = os.time()}), 
+            json.encode({name = false, rank = 0, lastupdate = os.time()}),
             targetCharacter.charIdentifier
         }, function()
-            Player(target).state.Gang = nil
+            Player(target).state:set('Gang', nil, true)
             Core.NotifyAvanced(src, _('staff_cmd_kick_success', target, Config.Gangs[currGang.name].label), "BLIPS", "blip_mission_camp", "COLOR_GREEN", 1500)
             Core.NotifyAvanced(target, _('staff_cmd_kick_target', Config.Gangs[currGang.name].label), "BLIPS", "blip_mission_camp", "COLOR_GREEN", 1500)
         end)
@@ -388,9 +401,7 @@ end, false)
 
 RegisterCommand(Config.Commands.staff.get, function(source, args)
     local src = source
-    local User <const> = Core.getUser(src)
-    if not User then return end
-    local Character <const> = User.getUsedCharacter
+    local Character <const> = GetCharacter(src)
     if not Character then return end
 
     local hasGroup = Character.group == Config.Commands.staff.group
