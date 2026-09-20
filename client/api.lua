@@ -6,7 +6,7 @@ local GangAPI = {}
 --- @usage exports.gs_gangs:GetPlayerGang()
 function GangAPI.GetPlayerGang()
     local gang = LocalPlayer.state.Gang?.name
-    if gang then
+    if gang and Config.Gangs[gang] then
         return {
             name = gang,
             color = Config.Gangs[gang].color,
@@ -50,8 +50,8 @@ function GangAPI.HasPermission()
     local gang = pState.Gang?.name or false
     local rank = pState.Gang?.rank or 0
 
-    if gang then
-        return Config.Gangs[gang].ranks[rank].permissionMenu
+    if gang and Config.Gangs[gang]?.ranks[rank] then
+        return Config.Gangs[gang].ranks[rank].permissionMenu == true
     end
 
     return false

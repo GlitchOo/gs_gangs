@@ -1,16 +1,4 @@
 local GangAccounts = {}
-local Core = exports.vorp_core:GetCore()
-
----Returns the active character for a source, or nil.
----@param source number
----@return table|nil
-local function GetCharacter(source)
-	local User = Core.getUser(source)
-	if not User then return nil end
-	local Character = User.getUsedCharacter
-	if not Character?.charIdentifier then return nil end
-	return Character
-end
 
 ---@param gangName string
 ---@param rank number
@@ -78,22 +66,10 @@ local function GetPlayerGangData(src)
 	local Character = GetCharacter(src)
 	if not Character then return nil end
 
-	local raw = MySQL.scalar.await('SELECT gang FROM characters WHERE charidentifier = ?', { Character.charIdentifier })
-	local PlayerGang = json.decode(raw or 'null')
-	if not PlayerGang or not Config.Gangs[PlayerGang.name] then
-		return nil
-	end
+	local PlayerGang = GetPlayerGang(src)
+	if not PlayerGang then return nil end
 
 	return PlayerGang, Character
-end
-
----@param src number
----@return table|nil
-local function FetchMembers(gangName)
-	return MySQL.query.await(
-		'SELECT charidentifier, firstname, lastname, gang FROM characters WHERE JSON_EXTRACT(`gang`, \'$.name\') = ?',
-		{ gangName }
-	) or {}
 end
 
 ---@param account string
@@ -104,9 +80,15 @@ local function LogLedgerEntry(account, amount, entryType, character)
 	local name = ('%s %s'):format(character.firstname or '', character.lastname or ''):gsub('^%s+', ''):gsub('%s+$', '')
 	if name == '' then name = 'Unknown' end
 
+	local charId = character.charIdentifier
+	if type(charId) == 'number' then
+		-- keep numeric for VORP; store as string for mixed column
+		charId = tostring(charId)
+	end
+
 	MySQL.insert(
 		'INSERT INTO gs_gang_ledger_logs (gang_name, charidentifier, player_name, entry_type, amount) VALUES (?, ?, ?, ?, ?)',
-		{ account, character.charIdentifier, name, entryType, amount }
+		{ account, charId, name, entryType, amount }
 	)
 end
 
@@ -159,8 +141,8 @@ RegisterNetEvent('gs_gangs:server:openBook', function()
 	local PlayerGang = GetPlayerGangData(src)
 	if not PlayerGang then return end
 
-	if not Config.Gangs[PlayerGang.name].ranks[PlayerGang.rank].permissionMenu then
-		return Core.NotifyAvanced(src, _('no_permission'), 'BLIPS', 'blip_mission_camp', 'COLOR_RED', 1500)
+	if not Config.Gangs[PlayerGang.name]?.ranks[PlayerGang.rank]?.permissionMenu then
+		return Notify(src, _('no_permission'), 'COLOR_RED', 1500)
 	end
 
 	TriggerClientEvent('gs_gangs:client:openBook', src, BookPayload(src, PlayerGang))
@@ -184,25 +166,20 @@ RegisterNetEvent('gs_gangs:server:ledgerDeposit', function(amount)
 	if not PlayerGang or not Character then return end
 
 	if not RankHas(PlayerGang.name, PlayerGang.rank, 'permissionLedgerDeposit') then
-		return Core.NotifyAvanced(src, _('no_permission'), 'BLIPS', 'blip_mission_camp', 'COLOR_RED', 1500)
+		return Notify(src, _('no_permission'), 'COLOR_RED', 1500)
 	end
 
-	local currency = Config.Ledger?.currency or 0
-	local money = Character.money or 0
-	if currency == 1 then
-		money = Character.gold or 0
-	elseif currency == 2 then
-		money = Character.rol or 0
+	if GetMoney(src, Character) < amount then
+		return Notify(src, _('ledger_not_enough_cash'), 'COLOR_RED', 1500)
 	end
 
-	if money < amount then
-		return Core.NotifyAvanced(src, _('ledger_not_enough_cash'), 'BLIPS', 'blip_mission_camp', 'COLOR_RED', 1500)
+	if not RemoveMoney(src, Character, amount) then
+		return Notify(src, _('ledger_not_enough_cash'), 'COLOR_RED', 1500)
 	end
 
-	Character.removeCurrency(currency, amount)
 	AddGangMoney(PlayerGang.name, amount)
 	LogLedgerEntry(PlayerGang.name, amount, 'deposit', Character)
-	Core.NotifyAvanced(src, _('ledger_deposited', amount), 'BLIPS', 'blip_mission_camp', 'COLOR_GREEN', 1500)
+	Notify(src, _('ledger_deposited', amount), 'COLOR_GREEN', 1500)
 	TriggerClientEvent('gs_gangs:client:bookUpdate', src, BookPayload(src, PlayerGang))
 end)
 
@@ -216,17 +193,20 @@ RegisterNetEvent('gs_gangs:server:ledgerWithdraw', function(amount)
 	if not PlayerGang or not Character then return end
 
 	if not RankHas(PlayerGang.name, PlayerGang.rank, 'permissionLedgerWithdraw') then
-		return Core.NotifyAvanced(src, _('no_permission'), 'BLIPS', 'blip_mission_camp', 'COLOR_RED', 1500)
+		return Notify(src, _('no_permission'), 'COLOR_RED', 1500)
 	end
 
 	if not RemoveGangMoney(PlayerGang.name, amount) then
-		return Core.NotifyAvanced(src, _('ledger_not_enough_funds'), 'BLIPS', 'blip_mission_camp', 'COLOR_RED', 1500)
+		return Notify(src, _('ledger_not_enough_funds'), 'COLOR_RED', 1500)
 	end
 
-	local currency = Config.Ledger?.currency or 0
-	Character.addCurrency(currency, amount, 'Gang Ledger')
+	if not AddMoney(src, Character, amount) then
+		AddGangMoney(PlayerGang.name, amount)
+		return Notify(src, _('no_permission'), 'COLOR_RED', 1500)
+	end
+
 	LogLedgerEntry(PlayerGang.name, amount, 'withdraw', Character)
-	Core.NotifyAvanced(src, _('ledger_withdrawn', amount), 'BLIPS', 'blip_mission_camp', 'COLOR_GREEN', 1500)
+	Notify(src, _('ledger_withdrawn', amount), 'COLOR_GREEN', 1500)
 	TriggerClientEvent('gs_gangs:client:bookUpdate', src, BookPayload(src, PlayerGang))
 end)
 

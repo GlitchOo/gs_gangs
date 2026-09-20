@@ -1,4 +1,3 @@
-local Core = exports.vorp_core:GetCore()
 local MemberBlips = {}
 
 --- Cleanup blips on resource stop
@@ -20,9 +19,9 @@ RegisterCommand(Config.Commands.checkGang, function(source, args, rawCommand)
     if LocalPlayer.state.Gang and Config.Gangs[LocalPlayer.state.Gang.name] then
         local label = Config.Gangs[LocalPlayer.state.Gang.name].label
         local rankLabel = Config.Gangs[LocalPlayer.state.Gang.name].ranks[LocalPlayer.state.Gang.rank].label
-        Core.NotifyRightTip(('%s - %s'):format(label, rankLabel), 4000)
+        NotifyTip(('%s - %s'):format(label, rankLabel), 4000)
     else
-        Core.NotifyRightTip(_('not_in_gang'), 4000)
+        NotifyTip(_('not_in_gang'), 4000)
     end
 end, false)
 
@@ -54,9 +53,10 @@ if Config.ShowNearbyMembers then
                         local playerState = Player(serverId).state --Get players state
                         if not IsPedDeadOrDying(ped, false) and LocalPlayer.state.Gang.name == playerState.Gang?.name then
                             if not MemberBlips[serverId] then --If the player is in the same gang and doesn't have a blip
-                                DevPrint('Adding Blip for', playerState.Character.NickName)
+                                local blipName = MemberBlipName(serverId)
+                                DevPrint('Adding Blip for', blipName)
                                 MemberBlips[serverId] = BlipAddForEntity(-1749618580, ped)
-                                Citizen.InvokeNative(0x9CB1A1623062F402, MemberBlips[serverId], playerState.Character.NickName)
+                                Citizen.InvokeNative(0x9CB1A1623062F402, MemberBlips[serverId], blipName)
                             end
                         else
                             if MemberBlips[serverId] then --If the player is not in the same gang and has a blip

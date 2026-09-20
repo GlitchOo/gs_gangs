@@ -1,7 +1,6 @@
 local BookOpen = false
 local BookAnimActive = false
 local BookAnimToken = 0
-local Core = exports.vorp_core:GetCore()
 
 local START_TASK_ITEM_INTERACTION = 0xAE72E7DF013AAA61
 local JOURNAL_USE = 0x2305A4FA
@@ -112,19 +111,6 @@ local function BookLocale()
 		declare_war = _('declare_war'),
 		declare_peace = _('declare_peace'),
 	}
-end
-
----@param serverId number
----@return string
-local function NearbyPlayerLabel(serverId)
-	local character = Player(serverId).state.Character
-	if character?.FirstName and character?.LastName then
-		return ('%s %s'):format(character.FirstName, character.LastName)
-	end
-	if character?.NickName and character.NickName ~= '' then
-		return character.NickName
-	end
-	return _('player_id', serverId)
 end
 
 ---Nearby invite targets for the book.
@@ -257,7 +243,10 @@ local function BuildPayload(members, balance, perms, log)
 			if type(g) == 'string' then
 				g = json.decode(g)
 			end
-			local rank = g?.rank or 1
+			local rank = tonumber(g?.rank)
+			if rank == nil then
+				rank = Config.Framework == 'rsg' and 0 or 1
+			end
 			formatted[#formatted + 1] = {
 				charidentifier = m.charidentifier,
 				firstname = m.firstname,
@@ -296,13 +285,13 @@ function OpenBookMenu()
 	DevPrint('OpenBookMenu')
 
 	if not LocalPlayer.state.Gang then
-		return Core.NotifyRightTip(_('not_in_gang'), 4000)
+		return NotifyTip(_('not_in_gang'), 4000)
 	end
 
 	local gang = LocalPlayer.state.Gang
 	local rank = Config.Gangs[gang.name]?.ranks[gang.rank]
 	if not rank?.permissionMenu then
-		return Core.NotifyRightTip(_('no_permission'), 4000)
+		return NotifyTip(_('no_permission'), 4000)
 	end
 
 	if BookOpen then
@@ -374,17 +363,17 @@ RegisterNUICallback('invite', function(data, cb)
 end)
 
 RegisterNUICallback('kickMember', function(data, cb)
-	local charId = tonumber(data?.charidentifier)
-	if charId then
+	local charId = data?.charidentifier
+	if charId ~= nil and tostring(charId) ~= '' then
 		TriggerServerEvent('gs_gangs:server:kickMember', charId)
 	end
 	cb({ ok = true })
 end)
 
 RegisterNUICallback('changeRank', function(data, cb)
-	local charId = tonumber(data?.charidentifier)
+	local charId = data?.charidentifier
 	local rank = tonumber(data?.rank)
-	if charId and rank then
+	if charId ~= nil and tostring(charId) ~= '' and rank then
 		TriggerServerEvent('gs_gangs:server:changeRank', charId, rank)
 		SetTimeout(400, function()
 			if BookOpen then

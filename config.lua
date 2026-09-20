@@ -1,5 +1,8 @@
 Config = {
-    EnableDev = true,                                   -- Enable Dev Mode
+    EnableDev = false,                                   -- Enable Dev Mode
+
+    -- Framework: 'vorp', 'rsg', or 'auto' (detect started core)
+    Framework = 'auto',
 
     Cooldown = 60*60*24,                                -- Cooldown to recruit someone after they've left another gang (in seconds)(24 hours)
 
@@ -16,7 +19,7 @@ Config = {
         staff = {
             set = 'setgang',                            -- Command to set a player's gang
             get = 'getgang',                            -- Command to get a player's gang
-            group = 'admin',                            -- Group to use the command
+            group = 'admin',                            -- VORP group to use the command (RSG uses ACE)
             acePerm = 'gangs.set',                      -- Ace Permission to use the command
         }
     },
@@ -28,7 +31,7 @@ Config = {
 
     Ledger = {
         enable = true,                                  -- Shared gang treasury in the book UI
-        currency = 0,                                   -- VORP currency (0 = cash, 1 = gold, 2 = rol)
+        currency = 0,                                   -- VORP: 0 cash / 1 gold / 2 rol. RSG maps 0->cash, 1->gold, 2->bloodmoney
         logLimit = 12,                                  -- Recent ledger entries shown under balance
         -- Ped anim while the book NUI is open
         -- 'notebook' = WORLD_HUMAN_WRITE_NOTEBOOK (recommended, standing write)
@@ -36,7 +39,21 @@ Config = {
         anim = 'notebook',
     },
 
-    -- Gangs
+    -- Blip colors for RSG Shared.Gangs (VORP gangs set color on each entry below)
+    GangColors = {
+        odriscoll = 'BLIP_MODIFIER_MP_COLOR_4',
+        lemoyne = 'BLIP_MODIFIER_MP_COLOR_8',
+        murfree = 'BLIP_MODIFIER_MP_COLOR_3',
+        skinner = 'BLIP_MODIFIER_MP_COLOR_5',
+        laramie = 'BLIP_MODIFIER_MP_COLOR_2',
+        dellobo = 'BLIP_MODIFIER_MP_COLOR_1',
+        night = 'BLIP_MODIFIER_MP_COLOR_6',
+        foreman = 'BLIP_MODIFIER_MP_COLOR_7',
+        anderson = 'BLIP_MODIFIER_MP_COLOR_9',
+        watson = 'BLIP_MODIFIER_MP_COLOR_10',
+    },
+
+    -- Gangs (VORP). On RSG these are replaced at runtime from rsg-core Shared.Gangs.
     Gangs = {
         ['DelLobo'] = {
             label = 'Del Lobo',                         -- Gang Name

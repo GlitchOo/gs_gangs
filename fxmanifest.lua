@@ -5,22 +5,25 @@ lua54 "yes"
 
 author '_G[S]cripts'
 description 'Gang for RedM'
-version '1.1.0'
+version '1.2.0'
 
 ui_page 'ui/index.html'
 
 shared_scripts {
   'config.lua',
+  'bridge/shared.lua',
   'utils/*.lua',
 }
 
 client_scripts {
+  'bridge/client.lua',
   'utils/client/*.lua',
   'client/*.lua'
 }
 
 server_scripts {
   '@oxmysql/lib/MySQL.lua',
+  'bridge/server.lua',
   'server/*.lua'
 }
 
@@ -33,6 +36,5 @@ files {
 }
 
 dependencies {
-  'vorp_core',
   'oxmysql',
 }
