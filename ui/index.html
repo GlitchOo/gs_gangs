@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Gang Ledger</title>
+	<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+	<div id="app" class="hidden">
+		<div class="book">
+			<img class="book-art" src="book.png" alt="" draggable="false" />
+			<div class="pages">
+				<aside class="page page-left">
+					<p class="gang-label" id="gangLabel"></p>
+					<p class="balance-line" id="balanceLine"></p>
+					<nav class="nav" id="nav"></nav>
+					<button type="button" class="ink-btn ghost" id="btnClose">Close</button>
+				</aside>
+				<main class="page page-right">
+					<header class="page-header">
+						<button type="button" class="ink-btn ghost back-btn hidden" id="btnBack">Back</button>
+						<h1 id="sectionTitle"></h1>
+						<p class="section-desc" id="sectionDesc"></p>
+					</header>
+					<div class="page-body" id="pageBody"></div>
+				</main>
+			</div>
+		</div>
+	</div>
+	<script src="app.js"></script>
+</body>
+</html>

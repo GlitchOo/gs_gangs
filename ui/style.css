@@ -1,0 +1,703 @@
+@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Special+Elite&display=swap');
+
+:root {
+	--ink: #2a1f14;
+	--ink-soft: #4a3a2a;
+	--ink-faint: rgba(42, 31, 20, 0.55);
+	--rule: rgba(42, 31, 20, 0.28);
+	--accent: #5c3d1e;
+	--danger: #6b1d1d;
+	--ok: #2f4a2a;
+	/* Paper boxes measured from book.png (1080x1080, black letterbox) */
+	--page-top: 20%;
+	--page-height: 59%;
+	--left-page-left: 11%;
+	--left-page-width: 38.5%;
+	--right-page-left: 52%;
+	--right-page-width: 38.5%;
+}
+
+* {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+}
+
+html,
+body {
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	background: transparent;
+	font-family: 'IM Fell English', 'Times New Roman', serif;
+	color: var(--ink);
+	user-select: none;
+}
+
+.hidden {
+	display: none !important;
+}
+
+#app {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(0, 0, 0, 0.55);
+	animation: fadeIn 0.28s ease;
+}
+
+@keyframes fadeIn {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+
+.book {
+	position: relative;
+	width: min(92vw, 1100px);
+	aspect-ratio: 1 / 1;
+	max-height: 92vh;
+	/* When height-capped, keep square sized by height so % overlays stay on the art */
+	max-width: min(92vw, 92vh, 1100px);
+}
+
+.book-art {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	object-position: center center;
+	pointer-events: none;
+	z-index: 0;
+}
+
+.pages {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	pointer-events: none;
+}
+
+.page {
+	position: absolute;
+	top: var(--page-top);
+	height: var(--page-height);
+	pointer-events: auto;
+	display: flex;
+	flex-direction: column;
+	min-height: 0;
+	overflow: hidden;
+	padding: 0.4% 1.2%;
+}
+
+.page-left {
+	left: var(--left-page-left);
+	width: var(--left-page-width);
+	padding-right: 1.8%;
+}
+
+.page-right {
+	left: var(--right-page-left);
+	width: var(--right-page-width);
+	padding-left: 1.8%;
+}
+
+.gang-label {
+	font-family: 'Special Elite', 'IM Fell English', serif;
+	font-size: clamp(1.05rem, 1.8vw, 1.55rem);
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	margin-bottom: 0.25rem;
+	line-height: 1.15;
+}
+
+.balance-line {
+	font-size: clamp(0.85rem, 1.15vw, 1.05rem);
+	color: var(--ink-soft);
+	font-style: italic;
+	margin-bottom: 0.85rem;
+	padding-bottom: 0.65rem;
+	border-bottom: none;
+	background: url('rule.png') left bottom / 100% 3px no-repeat;
+}
+
+.nav {
+	display: flex;
+	flex-direction: column;
+	gap: 0.15rem;
+	flex: 1;
+	min-height: 0;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+.nav-item {
+	appearance: none;
+	position: relative;
+	isolation: isolate;
+	border: none;
+	background: transparent;
+	text-align: left;
+	font: inherit;
+	color: var(--ink);
+	font-size: clamp(0.95rem, 1.35vw, 1.15rem);
+	padding: 0.42rem 0.55rem 0.42rem 0.45rem;
+	cursor: pointer;
+	transition: color 0.15s ease;
+}
+
+.nav-item::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: url('ink_splash.png') left center / 108% 118% no-repeat;
+	opacity: 0;
+	transition: opacity 0.15s ease;
+	pointer-events: none;
+	z-index: -1;
+}
+
+.nav-item:hover {
+	color: #f4e8cf;
+	text-shadow: 0 1px 0 rgba(42, 31, 20, 0.35);
+}
+
+.nav-item:hover::before,
+.nav-item.active::before {
+	opacity: 0.8;
+}
+
+.nav-item.active {
+	color: #f4e8cf;
+	font-style: italic;
+	text-shadow: 0 1px 0 rgba(42, 31, 20, 0.35);
+}
+
+.page-header {
+	margin-bottom: 0.75rem;
+	padding: 0.35rem 0.45rem 0.7rem;
+	border-bottom: none;
+	background: url('rule.png') left bottom / 100% 3px no-repeat;
+	flex-shrink: 0;
+}
+
+.page-header h1 {
+	font-family: 'Special Elite', 'IM Fell English', serif;
+	font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+	font-weight: 400;
+	letter-spacing: 0.03em;
+}
+
+.section-desc {
+	margin-top: 0.25rem;
+	font-size: clamp(0.8rem, 1.05vw, 0.95rem);
+	color: var(--ink-faint);
+	font-style: italic;
+}
+
+.page-body {
+	flex: 1;
+	min-height: 0;
+	overflow-x: hidden;
+	overflow-y: auto;
+	padding-right: 0.2rem;
+}
+
+.page-body::-webkit-scrollbar,
+.nav::-webkit-scrollbar {
+	width: 3px;
+	height: 0;
+}
+
+.page-body::-webkit-scrollbar-track,
+.nav::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.page-body::-webkit-scrollbar-thumb,
+.nav::-webkit-scrollbar-thumb {
+	background: var(--rule);
+}
+
+.balance-hero {
+	position: relative;
+	isolation: isolate;
+	margin-top: 0.85rem;
+	padding: 1.1rem 0.75rem;
+	text-align: center;
+}
+
+.balance-hero::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: url('inkroller.png') center / 100% 100% no-repeat;
+	opacity: 0.55;
+	pointer-events: none;
+	z-index: -1;
+}
+
+.balance-hero .amount {
+	font-family: 'Special Elite', serif;
+	font-size: clamp(1.8rem, 3.2vw, 2.7rem);
+	letter-spacing: 0.06em;
+	color: #f4e8cf;
+	text-shadow: 0 1px 0 rgba(42, 31, 20, 0.45);
+}
+
+.balance-hero .hint {
+	margin-top: 0.65rem;
+	color: rgba(244, 232, 207, 0.78);
+	font-style: italic;
+	font-size: clamp(0.8rem, 1.05vw, 0.95rem);
+}
+
+.log-title {
+	margin-top: 1.1rem;
+	margin-bottom: 0.45rem;
+	padding-bottom: 0.45rem;
+	border-bottom: none;
+	background: url('rule_soft.png') left bottom / 100% 2px no-repeat;
+	font-family: 'Special Elite', 'IM Fell English', serif;
+	font-size: clamp(0.95rem, 1.25vw, 1.1rem);
+	letter-spacing: 0.03em;
+}
+
+.ledger-log {
+	display: flex;
+	flex-direction: column;
+	gap: 0.15rem;
+	min-height: 0;
+}
+
+.ledger-log-item {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0.5rem;
+	padding: 0.32rem 0.15rem;
+	border-bottom: none;
+	background: url('rule_soft.png') left bottom / 100% 2px no-repeat;
+	font-size: clamp(0.8rem, 1.05vw, 0.92rem);
+}
+
+.ledger-log-item .log-main {
+	min-width: 0;
+	flex: 1;
+}
+
+.ledger-log-item .log-time {
+	flex-shrink: 0;
+	color: var(--ink-faint);
+	font-style: italic;
+	font-size: 0.78em;
+}
+
+.ledger-log-item.deposit .log-main {
+	color: var(--ok);
+}
+
+.ledger-log-item.withdraw .log-main {
+	color: var(--danger);
+}
+
+.form-row {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	margin-bottom: 0.85rem;
+}
+
+.form-row label {
+	font-size: 0.9rem;
+	color: var(--ink-soft);
+}
+
+.form-row input {
+	appearance: none;
+	border: none;
+	border-bottom: none;
+	background: url('rule_soft.png') left bottom / 100% 2px no-repeat;
+	font: inherit;
+	font-size: 1.1rem;
+	color: var(--ink);
+	padding: 0.35rem 0.15rem 0.45rem;
+	outline: none;
+	width: 100%;
+}
+
+.form-row input:focus {
+	background-image: url('rule.png');
+}
+
+.form-row input[type='number']::-webkit-outer-spin-button,
+.form-row input[type='number']::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.form-row input[type='number'] {
+	-moz-appearance: textfield;
+	appearance: textfield;
+}
+
+.amount-stepper {
+	display: flex;
+	align-items: stretch;
+	gap: 0.45rem;
+	width: 100%;
+}
+
+.amount-input {
+	flex: 1;
+	min-width: 0;
+}
+
+.amount-spinners {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 0.15rem;
+	flex-shrink: 0;
+}
+
+.amount-spin {
+	appearance: none;
+	width: 1.55rem;
+	height: 1.15rem;
+	padding: 0;
+	border: 1px solid var(--ink);
+	background: transparent;
+	color: var(--ink);
+	font-size: 0.55rem;
+	line-height: 1;
+	cursor: pointer;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.amount-spin:hover {
+	background: rgba(42, 31, 20, 0.1);
+	color: var(--accent);
+	border-color: var(--accent);
+}
+
+.amount-spin:active {
+	background: rgba(42, 31, 20, 0.18);
+}
+
+.actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.45rem;
+	margin-top: 0.35rem;
+}
+
+.ink-btn {
+	appearance: none;
+	position: relative;
+	isolation: isolate;
+	border: none;
+	background: transparent;
+	color: var(--ink);
+	font: inherit;
+	font-size: 0.9rem;
+	padding: 0.42rem 0.9rem;
+	cursor: pointer;
+	letter-spacing: 0.03em;
+	transition: color 0.15s ease;
+}
+
+.ink-btn::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: url('selection_box.png') center / 100% 100% no-repeat;
+	opacity: 0.35;
+	pointer-events: none;
+	z-index: -1;
+}
+
+.ink-btn:hover {
+	color: #f4e8cf;
+	text-shadow: 0 1px 0 rgba(42, 31, 20, 0.35);
+}
+
+.ink-btn:hover::before {
+	opacity: 0.8;
+}
+
+.ink-btn.primary {
+	color: #f4e8cf;
+	text-shadow: 0 1px 0 rgba(42, 31, 20, 0.35);
+}
+
+.ink-btn.primary::before {
+	background-image: url('inkroller.png');
+	opacity: 0.7;
+}
+
+.ink-btn.danger {
+	color: var(--danger);
+}
+
+.ink-btn.danger::before {
+	opacity: 0.2;
+}
+
+.ink-btn.danger:hover {
+	color: #f4e8cf;
+}
+
+.ink-btn.danger:hover::before {
+	opacity: 0.75;
+	filter: hue-rotate(-15deg) saturate(1.2);
+}
+
+.ink-btn.ghost {
+	border: none;
+	background: transparent;
+	margin-top: auto;
+	align-self: flex-start;
+	padding-left: 0.15rem;
+	padding-right: 0.15rem;
+	color: var(--ink-soft);
+	flex-shrink: 0;
+}
+
+.ink-btn.ghost::before {
+	display: none;
+}
+
+.page-header .back-btn {
+	margin-top: 0;
+	margin-bottom: 0.45rem;
+}
+
+.choice-item {
+	appearance: none;
+	position: relative;
+	isolation: isolate;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.2rem;
+	border: none;
+	border-bottom: none;
+	background: url('rule_soft.png') left bottom / 100% 2px no-repeat;
+	color: var(--ink);
+	font: inherit;
+	text-align: left;
+	padding: 0.75rem 0.55rem;
+	cursor: pointer;
+	transition: color 0.15s ease;
+}
+
+.choice-item::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: url('selection_box.png') center center / 104% 108% no-repeat;
+	opacity: 0;
+	transition: opacity 0.15s ease;
+	pointer-events: none;
+	z-index: -1;
+}
+
+.choice-item:hover {
+	color: #f4e8cf;
+	text-shadow: 0 1px 0 rgba(42, 31, 20, 0.35);
+	background-image: none;
+}
+
+.choice-item:hover::before {
+	opacity: 0.8;
+}
+
+.choice-item:hover .choice-desc {
+	color: rgba(244, 232, 207, 0.78);
+}
+
+.choice-title {
+	font-family: 'Special Elite', 'IM Fell English', serif;
+	font-size: clamp(1.05rem, 1.5vw, 1.25rem);
+	letter-spacing: 0.03em;
+}
+
+.choice-desc {
+	font-size: clamp(0.8rem, 1.05vw, 0.92rem);
+	color: var(--ink-faint);
+	font-style: italic;
+}
+
+.list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+}
+
+.list-item {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 0.55rem;
+	padding: 0.45rem 0.15rem;
+	border-bottom: none;
+	background: url('rule_soft.png') left bottom / 100% 2px no-repeat;
+}
+
+.list-item .meta {
+	min-width: 0;
+}
+
+.list-item .title {
+	font-size: 0.98rem;
+}
+
+.list-item .sub {
+	font-size: 0.82rem;
+	color: var(--ink-faint);
+	font-style: italic;
+	margin-top: 0.12rem;
+}
+
+.list-item .row-actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.3rem;
+	justify-content: flex-end;
+}
+
+.badge {
+	display: inline-block;
+	font-size: 0.75rem;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: var(--ink-soft);
+}
+
+.badge.war {
+	color: var(--danger);
+}
+
+.badge.peace {
+	color: var(--ok);
+}
+
+.empty {
+	margin-top: 0.75rem;
+	color: var(--ink-faint);
+	font-style: italic;
+}
+
+.member-detail {
+	display: flex;
+	flex-direction: column;
+	gap: 0.85rem;
+	min-height: 0;
+}
+
+.rank-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.12rem;
+	flex: 1;
+	min-height: 0;
+	overflow-x: hidden;
+	overflow-y: auto;
+}
+
+.rank-option {
+	appearance: none;
+	position: relative;
+	isolation: isolate;
+	width: 100%;
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 0.5rem;
+	border: none;
+	background: transparent;
+	color: var(--ink);
+	font: inherit;
+	text-align: left;
+	padding: 0.48rem 0.55rem;
+	cursor: pointer;
+	transition: color 0.15s ease;
+}
+
+.rank-option::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background: url('ink_splash.png') left center / 108% 118% no-repeat;
+	opacity: 0;
+	transition: opacity 0.15s ease;
+	pointer-events: none;
+	z-index: -1;
+}
+
+.rank-option:hover {
+	color: #f4e8cf;
+	text-shadow: 0 1px 0 rgba(42, 31, 20, 0.35);
+}
+
+.rank-option:hover::before,
+.rank-option.active::before {
+	opacity: 0.8;
+}
+
+.rank-option.active {
+	color: #f4e8cf;
+	font-style: italic;
+	text-shadow: 0 1px 0 rgba(42, 31, 20, 0.35);
+	cursor: default;
+}
+
+.rank-option-label {
+	font-family: 'Special Elite', 'IM Fell English', serif;
+	font-size: clamp(0.95rem, 1.3vw, 1.12rem);
+	letter-spacing: 0.02em;
+}
+
+.rank-option-mark {
+	flex-shrink: 0;
+	min-width: 1rem;
+}
+
+.rank-stamp {
+	flex-shrink: 0;
+	width: 4.4rem;
+	height: 1.4rem;
+	background: url('stamp_owned.png') center / contain no-repeat;
+	opacity: 0.95;
+}
+
+.kick-btn {
+	align-self: flex-start;
+	margin-top: 0.35rem;
+	flex-shrink: 0;
+}
+
+
+@media (max-width: 820px) {
+	:root {
+		--page-top: 19.5%;
+		--page-height: 60%;
+		--left-page-left: 11%;
+		--left-page-width: 39%;
+		--right-page-left: 52%;
+		--right-page-width: 39%;
+	}
+
+	.book {
+		width: min(96vw, 96vh);
+		max-width: min(96vw, 96vh);
+		max-height: 96vh;
+	}
+}

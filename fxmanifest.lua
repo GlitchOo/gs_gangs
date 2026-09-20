@@ -1,11 +1,13 @@
 fx_version "cerulean"
-games {"rdr3"}
+game {"rdr3"}
 rdr3_warning "I acknowledge that this is a prerelease build of RedM, and I am aware my resources *will* become incompatible once RedM ships."
 lua54 "yes"
 
 author '_G[S]cripts'
 description 'Gang for RedM'
-version '1.0.6'
+version '1.1.0'
+
+ui_page 'ui/index.html'
 
 shared_scripts {
   'config.lua',
@@ -23,11 +25,14 @@ server_scripts {
 }
 
 files {
-  'locales/*.json'
+  'locales/*.json',
+  'ui/index.html',
+  'ui/style.css',
+  'ui/app.js',
+  'ui/*.png'
 }
 
 dependencies {
   'vorp_core',
-  'vorp_menu',
   'oxmysql',
 }

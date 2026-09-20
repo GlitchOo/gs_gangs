@@ -14,17 +14,17 @@ A simple gang management system for VORP/RedM. Gang status is stored in the data
 - Gangs - Easily configure gangs, ranks, etc.
 - Client/Server API.
 
-[Example Video](https://youtu.be/UEe1d2MUIU8)
-
-![Preview 1](https://static.glitchd.app/redm/gangs/gang_menu_1.png)
-![Preview 2](https://static.glitchd.app/redm/gangs/gang_menu_2.png)
-![Preview 3](https://static.glitchd.app/redm/gangs/gang_menu_3.png)
-![Preview 4](https://static.glitchd.app/redm/gangs/gang_menu_4.png)
-![Preview 5](https://static.glitchd.app/redm/gangs/gang_menu_5.png)
+![Preview 1](https://static.glitchd.app/redm/gangs/gang_menu_1.png?v2)
+![Preview 2](https://static.glitchd.app/redm/gangs/gang_menu_2.png?v2)
+![Preview 3](https://static.glitchd.app/redm/gangs/gang_menu_3.png?v2)
+![Preview 4](https://static.glitchd.app/redm/gangs/gang_menu_4.png?v2)
+![Preview 5](https://static.glitchd.app/redm/gangs/gang_menu_5.png?v2)
+![Preview 5](https://static.glitchd.app/redm/gangs/gang_menu_6.png?v2)
+![Preview 5](https://static.glitchd.app/redm/gangs/gang_menu_7.png?v2)
 
 # Commands
 
-/gangmenu - Opens the gang menu for members who have menu permission.
+/gangmenu - Opens the gang ledger book for members who have menu permission.
     - Invite members.
     - Manage members.
         - Kick members.
@@ -116,6 +116,4 @@ While this resource was built around VORP, it could be modified for any framewor
 
 [Vorp Core](https://github.com/VORPCORE/vorp_core-lua)
 
-[Vorp Menu](https://github.com/VORPCORE/vorp_menu)
-
-[oxmysql](https://github.com/overextended/oxmysql)
+[OxMySQL](https://github.com/overextended/oxmysql)

@@ -22,8 +22,15 @@ Config = {
     },
 
     MaxInviteDistance = 10,                             -- Max distance to invite a player
+    InvitePromptTimeout = 30,                           -- Seconds to accept/decline invite prompt
 
     MaxMembers = 10,                                    -- Max members per gang
+
+    Ledger = {
+        enable = true,                                  -- Shared gang treasury in the book UI
+        currency = 0,                                   -- VORP currency (0 = cash, 1 = gold, 2 = rol)
+        logLimit = 12,                                  -- Recent ledger entries shown under balance
+    },
 
     -- Gangs
     Gangs = {
@@ -49,7 +56,9 @@ Config = {
                 },
                 [5] = {
                     label = 'Bossman',                  -- Rank Name
-                    permissionMenu = true               -- Permission to open the menu
+                    permissionMenu = true,              -- Permission to open the menu
+                    permissionLedgerDeposit = true,     -- Deposit into gang ledger
+                    permissionLedgerWithdraw = true,    -- Withdraw from gang ledger
                 },
             },
         },
@@ -76,7 +85,9 @@ Config = {
                 },
                 [5] = {
                     label = 'Bossman',                  -- Rank Name
-                    permissionMenu = true               -- Permission to open the menu
+                    permissionMenu = true,              -- Permission to open the menu
+                    permissionLedgerDeposit = true,
+                    permissionLedgerWithdraw = true,
                 },
             },
         },
@@ -103,7 +114,9 @@ Config = {
                 },
                 [5] = {
                     label = 'Bossman',                  -- Rank Name
-                    permissionMenu = true               -- Permission to open the menu
+                    permissionMenu = true,              -- Permission to open the menu
+                    permissionLedgerDeposit = true,
+                    permissionLedgerWithdraw = true,
                 },
             },
         },
@@ -130,7 +143,9 @@ Config = {
                 },
                 [5] = {
                     label = 'Bossman',                  -- Rank Name
-                    permissionMenu = true               -- Permission to open the menu
+                    permissionMenu = true,              -- Permission to open the menu
+                    permissionLedgerDeposit = true,
+                    permissionLedgerWithdraw = true,
                 },
             },
         },
@@ -157,7 +172,9 @@ Config = {
                 },
                 [5] = {
                     label = 'Bossman',                  -- Rank Name
-                    permissionMenu = true               -- Permission to open the menu
+                    permissionMenu = true,              -- Permission to open the menu
+                    permissionLedgerDeposit = true,
+                    permissionLedgerWithdraw = true,
                 },
             },
         },

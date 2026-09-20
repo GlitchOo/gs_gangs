@@ -2,11 +2,12 @@ local LocaleFile = LoadResourceFile(U.Cache.Resource, ('locales/%s.json'):format
 local Locales = json.decode(LocaleFile)
 
 function _(str, ...)
-	if Locales then
-		if Locales[str] then
-			return (Locales[str]):format(...)
+	if Locales and Locales[str] then
+		if select('#', ...) > 0 then
+			return Locales[str]:format(...)
 		end
-    end
+		return Locales[str]
+	end
 
 	return str
 end
