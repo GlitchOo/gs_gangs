@@ -1,5 +1,68 @@
 local BookOpen = false
+local BookAnimActive = false
+local BookAnimToken = 0
 local Core = exports.vorp_core:GetCore()
+
+local START_TASK_ITEM_INTERACTION = 0xAE72E7DF013AAA61
+local JOURNAL_USE = 0x2305A4FA
+
+---Start the configured book ped anim and keep it alive while the UI is open.
+local function StartBookAnim()
+	local style = Config.Ledger?.anim
+	if not style or style == false or style == 'none' then return end
+
+	BookAnimToken = BookAnimToken + 1
+	local token = BookAnimToken
+	BookAnimActive = true
+
+	CreateThread(function()
+		-- Let NUI focus settle so the scenario is not cancelled immediately
+		Wait(250)
+		if not BookOpen or token ~= BookAnimToken then return end
+
+		local function applyAnim()
+			if not BookOpen or token ~= BookAnimToken then return end
+			if style == 'journal' then
+				Citizen.InvokeNative(START_TASK_ITEM_INTERACTION, U.Cache.Ped, joaat('DOCUMENT_PLAYER_JOURNAL'), JOURNAL_USE, 1, 0, -1082130432.0)
+			else
+				TaskStartScenarioInPlace(U.Cache.Ped, joaat('WORLD_HUMAN_WRITE_NOTEBOOK'), -1, true, false, false, false)
+			end
+		end
+
+		applyAnim()
+
+		while BookOpen and token == BookAnimToken do
+			Wait(1000)
+			if not BookOpen or token ~= BookAnimToken then break end
+
+			if style == 'journal' then
+				if not IsPedRunningTaskItemInteraction(U.Cache.Ped) then
+					applyAnim()
+				end
+			else
+				if not IsPedUsingAnyScenario(U.Cache.Ped) then
+					applyAnim()
+				end
+			end
+		end
+	end)
+end
+
+---Stop book ped anim if running.
+local function StopBookAnim()
+	BookAnimToken = BookAnimToken + 1
+	if not BookAnimActive then return end
+	BookAnimActive = false
+
+	CreateThread(function()
+		ClearPedTasksImmediately(U.Cache.Ped)
+		-- Second clear after a tick in case a late applyAnim raced us
+		Wait(50)
+		if not BookOpen then
+			ClearPedTasksImmediately(U.Cache.Ped)
+		end
+	end)
+end
 
 ---Locale table for the book NUI.
 ---@return table
@@ -67,7 +130,7 @@ end
 ---Nearby invite targets for the book.
 ---@return table
 local function CollectNearby()
-	local myCoords = GetEntityCoords(PlayerPedId())
+	local myCoords = U.Cache.Coords
 	local maxDist = Config.MaxInviteDistance or 10
 	local out = {}
 	local players = GetActivePlayers()
@@ -223,6 +286,7 @@ end
 function CloseBookMenu()
 	if not BookOpen then return end
 	BookOpen = false
+	StopBookAnim()
 	SetNuiFocus(false, false)
 	SendNUIMessage({ action = 'close' })
 end
@@ -260,6 +324,7 @@ RegisterNetEvent('gs_gangs:client:openBook', function(data)
 	if not payload then return end
 
 	BookOpen = true
+	StartBookAnim()
 	SetNuiFocus(true, true)
 	SendNUIMessage({
 		action = 'open',

@@ -30,6 +30,10 @@ Config = {
         enable = true,                                  -- Shared gang treasury in the book UI
         currency = 0,                                   -- VORP currency (0 = cash, 1 = gold, 2 = rol)
         logLimit = 12,                                  -- Recent ledger entries shown under balance
+        -- Ped anim while the book NUI is open
+        -- 'notebook' = WORLD_HUMAN_WRITE_NOTEBOOK (recommended, standing write)
+        -- false / 'none' = disabled
+        anim = 'notebook',
     },
 
     -- Gangs
